@@ -1,5 +1,5 @@
 ## **AutoInsta**
-**This project is made with the help of Selenium drive and the Python. This project if capable of removing followers and following from your profile and it can even download the media file such as images and videos of the post.**
+**This project is made with the help of Selenium drive and the Python. This project is capable of removing followers and following from your profile and it can even download the media file such as images and videos of the post.**
 
 #### **How to setup :-**
 1. First of all, install all the dependencies by `python3 install -r requirements.txt` in the cmd.
