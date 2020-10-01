@@ -1,21 +1,21 @@
-from selenium import webdriver
-import time
 import os
-from config import USERNAME, PASSWORD
 import requests
-from urllib.parse import urlparse
+import time
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
+from urllib.parse import urlparse
+
+from config import USERNAME, PASSWORD
 
 BASE_DIR = os.path.dirname(__file__)
 browser = webdriver.Chrome()
 user_url = f"https://www.instagram.com/{USERNAME}"
-print(BASE_DIR)
 
 
 # login in the instagram account
 def login(browser=browser, username=USERNAME, password=PASSWORD):
     browser.get("https://www.instagram.com/")
-    time.sleep(1)
+    time.sleep(2)
     username_field = browser.find_element_by_name("username")
     username_field.send_keys(username)
     password_field = browser.find_element_by_name("password")
@@ -27,12 +27,14 @@ def login(browser=browser, username=USERNAME, password=PASSWORD):
 
 # returning src of a particular post
 def get_src_from_post(post_type="img"):
-    file_path = "//div[@role='button']//img"
+    links = []
+    file_path = "//div[@role='button']//img[@style]"
     if post_type == "video":
         file_path = "//video[@type='video/mp4']"
-    file = browser.find_element_by_xpath(file_path)
-    file_src = file.get_attribute('src')
-    return file_src
+    print(post_type)
+    files = browser.find_elements_by_xpath(file_path)
+    links += [file.get_attribute('src') for file in files]
+    return links
 
 
 # returning src url from all post
@@ -48,30 +50,13 @@ def getting_all_post(media_type, count):
     elif count:
         search_upto = count
     for post in post_media[0:search_upto]:
-        post_name = urlparse(post.get_attribute('href')).path
-        extra_data_path = f"//a[@href='{post_name}']//span[@aria-label]"
-        extra_data = browser.find_elements_by_xpath(extra_data_path)
-        if len(extra_data) == 0:
-            post_image_src = get_src_from_post()
-            media[0].append(post_image_src)
-            continue
         browser.execute_script("arguments[0].click()", post)
         time.sleep(2.5)
-        while True:
-            try:
-                data_element_src = get_src_from_post(post_type="video")
-                media[1].append(data_element_src)
-            except:
-                data_element_src = get_src_from_post()
-                media[0].append(data_element_src)
-            try:
-                next_btn_xpath = "//div[@class ='    coreSpriteRightChevron  ']"
-                next_btn = browser.find_element_by_xpath(next_btn_xpath)
-                next_btn.click()
-                time.sleep(2.5)
-            except NoSuchElementException:
-                time.sleep(2.5)
-                break
+        media[0] += get_src_from_post()
+        try:
+            media[1] += get_src_from_post(post_type="video")
+        except NoSuchElementException:
+            pass
         close_btn()
 
     # only returning the video url from all media url
@@ -93,6 +78,7 @@ def get_media(username=USERNAME, media_type=None, count=3, browser=browser):
 
     # getting media links from the function
     media_elements = getting_all_post(media_type, count)
+    print(media_elements)
     time.sleep(1.2)
 
     # looping through the media links
@@ -100,6 +86,7 @@ def get_media(username=USERNAME, media_type=None, count=3, browser=browser):
         # parsing the correct file name
         base_url = urlparse(element_url).path
         filename = os.path.basename(base_url)
+        print(base_url, "-------", filename)
 
         # creating the get request to download the media files
         with requests.get(element_url, stream=True) as r:
@@ -138,11 +125,11 @@ def remove_following(remove=0, browser=browser):
             following_x_path = f"//a[@title='{user_name}']//following::button"
             following_btn = browser.find_element_by_xpath(following_x_path)
             following_btn.click()
-            print("removed----", user_name)
+            # print("removed----", user_name)
             following_removed += 1
-            time.sleep(1)
+            time.sleep(1.7)
             unfollow_btn()
-            print("un follow", following_removed)
+            # print("un follow", following_removed)
         except:
             break
     else:

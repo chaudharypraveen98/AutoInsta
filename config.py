@@ -23,5 +23,5 @@ credentials below
 
 
 """
-USERNAME = "ENTER YOUR USERNAME"
-PASSWORD = "ENTER YOUR SECRET KEY"
+USERNAME = "badtameez_admi"
+PASSWORD = "9811243039"
