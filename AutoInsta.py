@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from urllib.parse import urlparse
 
-from config import USERNAME, PASSWORD
+from config1 import USERNAME, PASSWORD
 
 BASE_DIR = os.path.dirname(__file__)
 browser = webdriver.Chrome()
@@ -223,3 +223,6 @@ def remove_following_not_followers(count=None, browser=browser):
         following_btn = browser.find_element_by_xpath(following_x_path)
         following_btn.click()
     close_btn()
+
+if __name__ == '__main__':
+    login(browser)
